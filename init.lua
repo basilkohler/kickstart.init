@@ -172,9 +172,13 @@ require('lazy').setup({
   -- { import = 'custom.plugins' },
   --
 
-  { 'ThePrimeagen/harpoon', opts = {} },
+  { 'ThePrimeagen/harpoon',   opts = {} },
 
   { 'mbbill/undotree' },
+
+  { 'windwp/nvim-autopairs',  event = "InsertEnter", opts = {} },
+
+  { 'mfussenegger/nvim-jdtls' },
 }, {})
 
 -- [[ set options]]
@@ -331,7 +335,7 @@ map('n', '<leader>fd', require('telescope.builtin').diagnostics, { desc = '[F]in
 -- See `:help nvim-treesitter`
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'vimdoc', 'vim' },
+  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'vimdoc', 'vim', 'java' },
 
   -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
   auto_install = false,
@@ -489,6 +493,11 @@ local servers = {
   },
 }
 
+require('jdtls').start_or_attach({
+  cmd = { '/opt/homebrew/bin/jdtls' },
+  root_dir = vim.fs.dirname(vim.fs.find({ 'gradlew', '.git', 'mvnw' }, { upward = true })[1]),
+})
+
 -- Setup neovim lua configuration
 require('neodev').setup()
 
@@ -528,15 +537,19 @@ cmp.setup {
     end,
   },
   mapping = cmp.mapping.preset.insert {
-    ['<C-n>'] = cmp.mapping.select_next_item(),
-    ['<C-p>'] = cmp.mapping.select_prev_item(),
+    ['<C-j>'] = cmp.mapping.select_next_item(),
+    ['<C-k>'] = cmp.mapping.select_prev_item(),
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    ['<C-u>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete {},
     ['<CR>'] = cmp.mapping.confirm {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
     },
+    ['<C-f>'] = cmp.mapping.confirm({
+      behavior = cmp.ConfirmBehavior.Replace,
+      select = true,
+    }),
     ['<Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
