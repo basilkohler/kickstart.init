@@ -203,6 +203,14 @@ vim.o.backup = false
 vim.o.undodir = os.getenv("HOME") .. "/.vim/undodir"
 vim.o.undofile = true
 
+-- tabwidth 4
+vim.opt.tabstop = 4
+vim.opt.softtabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.expandtab = true
+vim.opt.smartindent = true
+
+
 -- Case-insensitive searching UNLESS \C or capital in search
 vim.o.ignorecase = true
 vim.o.smartcase = true
@@ -311,8 +319,8 @@ require('telescope').setup {
 pcall(require('telescope').load_extension, 'fzf')
 
 -- See `:help telescope.builtin`
-map('n', '<leader>fr', require('telescope.builtin').oldfiles, { desc = '[F]ind [R]ecently opened files' })
-map('n', '<leader>fo', require('telescope.builtin').buffers, { desc = '[F]ind [O]pen buffers' })
+map('n', '<leader>fr', require('telescope.builtin').oldfiles, '[F]ind [R]ecently opened files')
+map('n', '<leader>fo', require('telescope.builtin').buffers, '[F]ind [O]pen buffers')
 
 function telescope_ff()
   -- You can pass additional configuration to telescope to change theme, layout, etc.
@@ -322,14 +330,14 @@ function telescope_ff()
   })
 end
 
-map('n', '<leader>/', telescope_ff, { desc = '[F]ind Fuzzily in current [b]uffer' })
-map('n', '<leader>fb', telescope_ff, { desc = '[F]ind Fuzzily in current [b]uffer' })
-map('n', '<leader>ff', require('telescope.builtin').git_files, { desc = '[F]ind Git [F]iles' })
-map('n', '<leader>fa', require('telescope.builtin').find_files, { desc = '[F]ind all [F]iles' })
-map('n', '<leader>fh', require('telescope.builtin').help_tags, { desc = '[F]ind [H]elp' })
-map('n', '<leader>fw', require('telescope.builtin').grep_string, { desc = '[F]ind current [W]ord' })
-map('n', '<leader>fg', require('telescope.builtin').live_grep, { desc = '[F]ind by [G]rep' })
-map('n', '<leader>fd', require('telescope.builtin').diagnostics, { desc = '[F]ind [D]iagnostics' })
+map('n', '<leader>/', telescope_ff, '[F]ind Fuzzily in current [b]uffer')
+map('n', '<leader>fb', telescope_ff, '[F]ind Fuzzily in current [b]uffer')
+map('n', '<leader>ff', require('telescope.builtin').git_files, '[F]ind Git [F]iles')
+map('n', '<leader>fa', require('telescope.builtin').find_files, '[F]ind all [F]iles')
+map('n', '<leader>fh', require('telescope.builtin').help_tags, '[F]ind [H]elp')
+map('n', '<leader>fw', require('telescope.builtin').grep_string, '[F]ind current [W]ord')
+map('n', '<leader>fg', require('telescope.builtin').live_grep, '[F]ind by [G]rep')
+map('n', '<leader>fd', require('telescope.builtin').diagnostics, '[F]ind [D]iagnostics')
 
 -- [[ Treesitter ]]
 -- See `:help nvim-treesitter`
@@ -440,7 +448,7 @@ local on_attach = function(_, bufnr)
     vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
   end
 
-  nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+  nmap('<leader>rr', vim.lsp.buf.rename, '[R]efactor [R]ename')
   nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
 
   nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
