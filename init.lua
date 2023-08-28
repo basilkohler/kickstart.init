@@ -330,9 +330,13 @@ function telescope_ff()
   })
 end
 
+function telescope_project()
+  require('telescope.builtin').git_files({ show_untracked = true })
+end
+
 map('n', '<leader>/', telescope_ff, '[F]ind Fuzzily in current [b]uffer')
 map('n', '<leader>fb', telescope_ff, '[F]ind Fuzzily in current [b]uffer')
-map('n', '<leader>ff', require('telescope.builtin').git_files, '[F]ind Git [F]iles')
+map('n', '<leader>ff', telescope_project, '[F]ind Git [F]iles')
 map('n', '<leader>fa', require('telescope.builtin').find_files, '[F]ind all [F]iles')
 map('n', '<leader>fh', require('telescope.builtin').help_tags, '[F]ind [H]elp')
 map('n', '<leader>fw', require('telescope.builtin').grep_string, '[F]ind current [W]ord')
