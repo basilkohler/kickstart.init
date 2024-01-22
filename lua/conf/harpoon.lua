@@ -1,0 +1,12 @@
+local harpoon_mark = require("harpoon.mark")
+local harpoon_ui = require("harpoon.ui")
+require("harpoon.ui")
+vim.keymap.set("n", "<leader>ja", harpoon_mark.add_file)
+vim.keymap.set("n", "<leader>jd", harpoon_mark.rm_file)
+vim.keymap.set("n", "<leader>jc", harpoon_mark.clear_all)
+vim.keymap.set("n", "<leader>js", harpoon_ui.toggle_quick_menu)
+
+vim.keymap.set("n", "<leader>jj", function() harpoon_ui.nav_file(1) end)
+vim.keymap.set("n", "<leader>jk", function() harpoon_ui.nav_file(2) end)
+vim.keymap.set("n", "<leader>jl", function() harpoon_ui.nav_file(3) end)
+vim.keymap.set("n", "<leader>j;", function() harpoon_ui.nav_file(4) end)
