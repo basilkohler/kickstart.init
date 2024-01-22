@@ -145,9 +145,33 @@ require('lazy').setup({
           return vim.fn.executable 'make' == 1
         end,
       },
+      {
+        'nvim-telescope/telescope-live-grep-args.nvim',
+      },
     },
+    config = function()
+      require("telescope").load_extension("live_grep_args")
+    end
   },
 
+  -- go
+  {
+    "ray-x/go.nvim",
+    dependencies = { -- optional packages
+      "ray-x/guihua.lua",
+      "neovim/nvim-lspconfig",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    config = function()
+      require("go").setup()
+    end,
+    event = { "CmdlineEnter" },
+    ft = { "go", 'gomod' },
+    build = ':lua require("go.install").update_all_sync()' -- if you need to install/update all binaries
+  },
+  {
+    "vrischmann/tree-sitter-templ",
+  },
   {
     -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
@@ -179,6 +203,13 @@ require('lazy').setup({
   { 'windwp/nvim-autopairs',  event = "InsertEnter", opts = {} },
 
   { 'mfussenegger/nvim-jdtls' },
+
+  {
+    'stevearc/oil.nvim',
+    opts = {},
+    -- Optional dependencies
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+  },
 }, {})
 
 -- [[ set options]]
@@ -304,16 +335,49 @@ map({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 
 -- [[ Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
-require('telescope').setup {
-  defaults = {
-    mappings = {
-      i = {
-        ['<C-u>'] = false,
-        ['<C-d>'] = false,
+local telescope = require("telescope")
+local lga_actions = require("telescope-live-grep-args.actions")
+
+telescope.setup {
+  extensions = {
+    live_grep_args = {
+      auto_quoting = true, -- enable/disable auto-quoting
+      -- define mappings, e.g.
+      mappings = {         -- extend mappings
+        i = {
+          ["<C-k>"] = lga_actions.quote_prompt(),
+          ["<C-i>"] = lga_actions.quote_prompt({ postfix = " --glob " }),
+        },
       },
-    },
-  },
+      -- ... also accepts theme settings, for example:
+      -- theme = "dropdown", -- use dropdown theme
+      -- theme = { }, -- use own theme spec
+      -- layout_config = { mirror=true }, -- mirror preview pane
+    }
+  }
 }
+
+-- telescope.setup {
+--   defaults = {
+--     mappings = {
+--       i = {
+--         ['<C-u>'] = false,
+--         ['<C-d>'] = false,
+--       },
+--     },
+--   },
+--   extensions = {
+--     live_grep_args = {
+--       auto_quoting = true,
+--       mappings = {
+--         i = {
+--           ["<C-k>"] = lga_actions.quote_prompt(),
+--           ["<C-i>"] = lga_actions.quote_prompt({ postfix = " --iglob " }),
+--         },
+--       },
+--     },
+--   },
+-- }
 
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
@@ -322,7 +386,7 @@ pcall(require('telescope').load_extension, 'fzf')
 map('n', '<leader>fr', require('telescope.builtin').oldfiles, '[F]ind [R]ecently opened files')
 map('n', '<leader>fo', require('telescope.builtin').buffers, '[F]ind [O]pen buffers')
 
-function telescope_ff()
+local function telescope_ff()
   -- You can pass additional configuration to telescope to change theme, layout, etc.
   require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
     winblend = 10,
@@ -330,29 +394,38 @@ function telescope_ff()
   })
 end
 
-function telescope_project()
+local function telescope_project()
   require('telescope.builtin').git_files({ show_untracked = true })
 end
 
-map('n', '<leader>/', telescope_ff, '[F]ind Fuzzily in current [b]uffer')
+local function oil_open_float()
+  local oil = require('oil')
+  oil.toggle_float(oil.get_current_dir())
+end
+
+map('n', '<leader>/', oil_open_float, { desc = "Open Oil in float" })
 map('n', '<leader>fb', telescope_ff, '[F]ind Fuzzily in current [b]uffer')
 map('n', '<leader>ff', telescope_project, '[F]ind Git [F]iles')
 map('n', '<leader>fa', require('telescope.builtin').find_files, '[F]ind all [F]iles')
 map('n', '<leader>fh', require('telescope.builtin').help_tags, '[F]ind [H]elp')
 map('n', '<leader>fw', require('telescope.builtin').grep_string, '[F]ind current [W]ord')
-map('n', '<leader>fg', require('telescope.builtin').live_grep, '[F]ind by [G]rep')
-map('n', '<leader>fd', require('telescope.builtin').diagnostics, '[F]ind [D]iagnostics')
+--map("n", "<leader>gc", live_grep_args_shortcuts.grep_word_under_cursor)
+map('n', '<leader>fg', ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>", '[F]ind by [G]rep')
+map('n', '<leader>sd', require('telescope.builtin').diagnostics, '[S]how [D]iagnostics')
 
 -- [[ Treesitter ]]
 -- See `:help nvim-treesitter`
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'vimdoc', 'vim', 'java' },
+  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'vimdoc', 'vim', 'java', 'templ' },
 
   -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
   auto_install = false,
 
-  highlight = { enable = true },
+  highlight = {
+    enable = true,
+    additional_vim_regex_highlighting = false,
+  },
   indent = { enable = true },
   incremental_selection = {
     enable = true,
@@ -409,6 +482,18 @@ require('nvim-treesitter.configs').setup {
   },
 }
 
+-- go templ
+local treesitter_parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+treesitter_parser_config.templ = {
+  install_info = {
+    url = "https://github.com/vrischmann/tree-sitter-templ.git",
+    files = { "src/parser.c", "src/scanner.c" },
+    branch = "master",
+  },
+}
+
+vim.treesitter.language.register('templ', 'templ')
+
 -- [[ Diagnostic keymaps ]]
 map('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
 map('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
@@ -437,8 +522,52 @@ vim.keymap.set("n", "<leader>jk", function() harpoon_ui.nav_file(2) end)
 vim.keymap.set("n", "<leader>jl", function() harpoon_ui.nav_file(3) end)
 vim.keymap.set("n", "<leader>j;", function() harpoon_ui.nav_file(4) end)
 
-
-
+-- [[ Oil ]]
+require("oil").setup({
+  default_file_explorer = true,
+  columns = {
+    "icon",
+    -- "permissions",
+    -- "size",
+    -- "mtime",
+  },
+  keymaps = {
+    ["g?"] = "actions.show_help",
+    ["<CR>"] = "actions.select",
+    ["<C-s>"] = "actions.select_vsplit",
+    ["<C-h>"] = "actions.select_split",
+    ["<C-t>"] = "actions.select_tab",
+    ["<C-p>"] = "actions.preview",
+    ["<C-c>"] = "actions.close",
+    ["<C-l>"] = "actions.refresh",
+    ["-"] = "actions.parent",
+    ["_"] = "actions.open_cwd",
+    ["`"] = "actions.cd",
+    ["~"] = "actions.tcd",
+    ["gs"] = "actions.change_sort",
+    ["gx"] = "actions.open_external",
+    ["g."] = "actions.toggle_hidden",
+    ["g\\"] = "actions.toggle_trash",
+  },
+  view_options = {
+    -- Show files and directories that start with "."
+    show_hidden = true,
+    -- This function defines what is considered a "hidden" file
+    is_hidden_file = function(name, bufnr)
+      return vim.startswith(name, ".")
+    end,
+    -- This function defines what will never be shown, even when `show_hidden` is set
+    is_always_hidden = function(name, bufnr)
+      return false
+    end,
+    sort = {
+      -- sort order can be "asc" or "desc"
+      -- see :help oil-columns to see which columns are sortable
+      { "type", "asc" },
+      { "name", "asc" },
+    },
+  },
+})
 
 -- [[ LSP ]]
 
@@ -453,7 +582,7 @@ local on_attach = function(_, bufnr)
   end
 
   nmap('<leader>rr', vim.lsp.buf.rename, '[R]efactor [R]ename')
-  nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+  nmap('<leader>sa', vim.lsp.buf.code_action, '[S]ow code [A]ctions')
 
   nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
   nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
@@ -534,6 +663,7 @@ mason_lspconfig.setup_handlers {
     }
   end
 }
+
 
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
