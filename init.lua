@@ -11,7 +11,7 @@ require 'conf/options'
 
 require 'conf/keymaps'
 
-require 'conf/telescope-setup'
+require 'conf/telescope'
 
 require 'conf/treesitter'
 

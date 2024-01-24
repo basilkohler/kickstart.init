@@ -52,8 +52,3 @@ map("n", "Q", "<nop>")
 
 map({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 
--- [[ Diagnostic keymaps ]]
-map('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
-map('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
-map('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
-map('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
