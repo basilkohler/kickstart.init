@@ -50,5 +50,7 @@ map("i", "<C-c>", "<Esc>")
 -- disable 'replay last recorded macro'
 map("n", "Q", "<nop>")
 
+map( 'n', 'U', '<C-r>')
+
 map({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 

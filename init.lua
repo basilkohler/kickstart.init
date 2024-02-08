@@ -18,3 +18,5 @@ require 'conf/treesitter'
 require 'conf/harpoon'
 
 require 'conf/oil'
+
+require 'conf/neotree'

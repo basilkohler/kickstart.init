@@ -24,6 +24,7 @@ vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.opt.smartindent = true
+vim.opt.iskeyword:remove("_")
 
 
 -- Case-insensitive searching UNLESS \C or capital in search
@@ -51,3 +52,4 @@ vim.o.colorcolumn = "100"
 
 -- keep cursor at line
 vim.o.scrolloff = 8
+
